@@ -1,0 +1,124 @@
+﻿<dotnetnuke type="Package" version="5.0">
+  <packages>
+    <package name="Engage: Application Insights for DNN" type="Module" version="1.0.0">
+      <friendlyName>Engage: Application Insights for DNN</friendlyName>
+      <description></description>
+      <owner>
+        <name>Engage Software</name>
+        <organization>Engage Software</organization>
+        <url>http://www.engagesoftware.com/</url>
+        <email>support@engagesoftware.com</email>
+      </owner>
+      <license src="EULA-Free.htm" />
+      <releaseNotes src="ReleaseNotes_1.0.0.htm" />
+      <dependencies>
+        <dependency type="CoreVersion">5.0.0</dependency>
+      </dependencies>
+      <components>
+        <component type="ResourceFile">
+          <resourceFiles>
+            <basePath>DesktopModules/Engage/ApplicationInsights</basePath>
+            <resourceFile>
+              <name>Resources.zip</name>
+            </resourceFile>
+          </resourceFiles>
+        </component>
+        <component type="File">
+          <files>
+            <file>
+              <name>ApplicationInsights.config</name>
+            </file>
+          </files>
+        </component>
+        <component type="Config">
+          <config>
+            <configFile>web.config</configFile>
+            <install>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.webServer/modules" action="update" key="name" collision="ignore">
+                    <remove name="ApplicationInsightsWebTracking"/>
+                    <add name="ApplicationInsightsWebTracking"
+                         type="Microsoft.ApplicationInsights.Extensibility.Web.RequestTracking.WebRequestTrackingModule, Microsoft.ApplicationInsights.Extensibility.Web"
+                         preCondition="managedHandler"/>
+                  </node>
+                </nodes>
+              </configuration>
+            </install>
+            <uninstall>
+              <configuration>
+                <nodes>
+                  <node path="/configuration/system.webServer/modules/remove[@name='ApplicationInsightsWebTracking']" action="remove" />
+                  <node path="/configuration/system.webServer/modules/add[@name='ApplicationInsightsWebTracking']" action="remove" />
+                </nodes>
+              </configuration>
+            </uninstall>
+          </config>
+        </component>
+        <component type="Config">
+          <config>
+            <configFile>DotNetNuke.log4net.config</configFile>
+            <install>
+              <configuration>
+                <nodes>
+                  <node path="/log4net/appender[@name='RollingFile']" action="update" key="type" collision="ignore">
+                    <filter type="log4net.Filter.LevelRangeFilter">
+                      <acceptOnMatch value="true" />
+                      <levelMin value="ERROR" />
+                      <levelMax value="FATAL" />
+                    </filter>
+                  </node>
+                  <node path="/log4net" action="update" key="name" collision="ignore">
+                    <appender name="aiAppender" type="Engage.Dnn.ApplicationInsights.ApplicationInsightsAppender, Engage.ApplicationInsights">
+                      <layout type="log4net.Layout.PatternLayout">
+                        <conversionPattern value="%message%newline"/>
+                      </layout>
+                    </appender>
+                  </node>
+                  <node path="/log4net/root" action="update" key="ref" collision="ignore">
+                    <appender-ref ref="aiAppender"/>
+                  </node>
+                  <node path="/log4net/root/level" action="updateattribute" name="value" value="ALL" />
+                </nodes>
+              </configuration>
+            </install>
+            <uninstall>
+              <configuration>
+                <nodes>
+                  <node path="/log4net/appender[@name='RollingFile']/filter[@type='log4net.Filter.LevelRangeFilter']" action="remove" />
+                  <node path="/log4net/appender[@name='aiAppender']" action="remove" />
+                  <node path="/log4net/root/appender-ref[@ref='aiAppender']" action="remove" />
+                  <node path="/log4net/root/level" action="updateattribute" name="value" value="ERROR" />
+                </nodes>
+              </configuration>
+            </uninstall>
+          </config>
+        </component>
+        <component type="Module">
+          <desktopModule>
+            <moduleName>Engage: Application Insights for DNN</moduleName>
+            <foldername>Engage/ApplicationInsights</foldername>
+            <businessControllerClass>Engage.Dnn.ApplicationInsights.FeaturesController</businessControllerClass>
+            <moduleDefinitions>
+              <moduleDefinition>
+                <friendlyName>Engage: Application Insights for DNN</friendlyName>
+                <defaultCacheTime>0</defaultCacheTime>
+                <moduleControls>
+                  <moduleControl>
+                    <controlKey/>
+                    <controlSrc>DesktopModules/Engage/ApplicationInsights/Views/ConfigureApplicationInsights.ascx</controlSrc>
+                    <supportsPartialRendering>True</supportsPartialRendering>
+                    <controlType>View</controlType>
+                  </moduleControl>
+                </moduleControls>
+              </moduleDefinition>
+            </moduleDefinitions>
+          </desktopModule>
+        </component>
+        <component type="Assembly">
+          <assemblies></assemblies>
+        </component>
+      </components>
+    </package>
+  </packages>
+</dotnetnuke>

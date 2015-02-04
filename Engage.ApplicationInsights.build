@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project xmlns="http://nant.sf.net/release/0.92/nant.xsd" name="DNN Module Build Script" basedir="." default="package">
+  <property name="clientName" value="Engage"/>
+  <property name="projectName" value="ApplicationInsights"/>
+  <property name="versions" value="7"/>
+  <property name="licenses" value="Free"/>
+  <property name="packageFileNameTemplate" value="${projectName}_${projectVersion}_${packageType}" dynamic="true"/>
+  <property name="createSourcePackage" value="true"/>
+  <property name="sourcePackageLicenseName" value="Free"/>
+  <property name="combineSourceWithInstallPackage" value="false"/>
+  <property name="projectDllName" value="${clientName}.${projectName}.dll" />
+  <property name="solutionFile" value="${clientName}.${projectName}.sln"/>
+  <!-- binDirectory is readonly if set from the command line (i.e. during Team Build CI) -->
+  <property name="binDirectory" value="..\..\..\bin" overwrite="false"/>
+  <property name="projectDll" value="${binDirectory}\${projectDllName}"/>
+  <patternset id="projectAssemblies">
+    <include name="${projectDll}"/>
+  </patternset>
+
+  <!-- testBuild is true if building from Visual Studio, false from Team Build (CI) -->
+  <property name="testBuild" value="true" overwrite="false"/>
+  <property name="projectConfig" value="release"/>
+  <property name="projectConfig" value="Debug" if="${testBuild}"/>
+  <property name="zipLevel" value="9"/>
+  <property name="zipLevel" value="1" if="${testBuild}"/>
+  <property name="referencesDirectory" value="References"/>
+  <property name="packageDirectory" value="package"/>
+  <property name="packageName" value="Resources.zip"/>
+
+  <target name="package" description="Creates packages for this module, one for each value in the licenses and versions properties">
+
+    <call target="build"/>
+
+    <property name="assemblyFile" value="${projectDll}"/>
+    <call target="set-assemblyVersion"/>
+    <property name="projectVersion" value="${assemblyVersion}"/>
+
+    <call target="clean-package-folder"/>
+    <call target="setup-package-files"/>
+    <call target="create-resources-zip"/>
+
+    <property name="includeSource" value="false"/>
+    <foreach item="String" in="${licenses}" delim="," property="packageLicense">
+      <call target="create-packages"/>
+    </foreach>
+
+    <if test="${createSourcePackage}">
+      <property name="includeSource" value="true"/>
+      <property name="packageLicense" value="${sourcePackageLicenseName}"/>
+      <call target="add-sources-to-resource-zip"/>
+      <call target="create-packages"/>
+
+      <if test="${combineSourceWithInstallPackage}">
+        <foreach item="String" in="${versions}" delim="," property="dnnVersion">
+          <call target="combine-source"/>
+        </foreach>
+      </if>
+    </if>
+
+    <call target="cleanup"/>
+  </target>
+  <target name="set-assemblyVersion" description="Sets the assemblyVersion property to the first three numbers from the version of the assembly specified by the assemblyFile property">
+    <property name="assemblyVersion" value="${format::version-info(assemblyFile)}" />
+  </target>
+  <target name="build" description="Builds solutionFile">
+    <if test="${testBuild}">
+      <exec program="${framework::get-framework-directory(framework::get-target-framework())}\msbuild.exe" failonerror="true">
+        <arg value="${solutionFile}" />
+        <arg value="/p:Configuration=${projectConfig}" />
+        <arg value="/p:Platform=&quot;Any CPU&quot;" />
+        <arg value="/p:OutputPath=&quot;${binDirectory}&quot;" />
+        <!-- multicore -->
+        <arg value="/m" />
+      </exec>
+    </if>
+  </target>
+  <target name="clean-package-folder" description="Deletes all temporary files from package directory, then re-creates the folders to use">
+    <mkdir dir="${packageDirectory}" failonerror="false"/>
+    <delete dir="${packageDirectory}/temp/resources" failonerror="false"/>
+    <delete dir="${packageDirectory}/temp" failonerror="false"/>
+    <mkdir dir="${packageDirectory}/temp" failonerror="false" />
+    <mkdir dir="${packageDirectory}/temp/resources" failonerror="false" />
+    <mkdir dir="${packageDirectory}/temp/package" failonerror="false"/>
+  </target>
+  <target name="setup-package-files" description="Copies common package files to the temp/package directory, and sets version-dependent attributes in the DNN 4 and DNN 5 manifest files">
+    <property name="releaseNotesFile" value="ReleaseNotes_${projectVersion}.htm"/>
+    <copy todir="${packageDirectory}/temp/package" flatten="true">
+      <fileset>
+        <include name="${releaseNotesFile}"/>
+        <include name="??.??.??.txt" />
+        <include name="ApplicationInsights.config" />
+        <include name="**/*.SqlDataProvider"/>
+        <include name="**/*.dnn"/>
+      </fileset>
+    </copy>
+    <copy-references todir="${packageDirectory}/temp/package/bin" solutionFile="${solutionFile}" flatten="true">
+      <fileset>
+        <patternset refid="projectAssemblies" />
+      </fileset>
+    </copy-references>
+    <attrib readonly="false">
+      <fileset basedir="${packageDirectory}/temp/package">
+        <include name="**"/>
+      </fileset>
+    </attrib>
+
+    <foreach item="File" property="dnnManifestFile">
+      <in>
+        <items>
+          <include name="${packageDirectory}/temp/package/*.dnn" />
+        </items>
+      </in>
+      <do>
+        <generate-assembly-component assembliesDirectory="${packageDirectory}/temp/package/bin" manifestFile="${dnnManifestFile}" xpath="dotnetnuke/packages/package/components/component[@type='Assembly']/assemblies" />
+        <xmlpoke file="${dnnManifestFile}" value="${releaseNotesFile}" xpath="dotnetnuke/packages/package/releaseNotes/@src" failonerror="false" />
+        <xmlpoke file="${dnnManifestFile}" value="${projectVersion}" xpath="dotnetnuke/packages/package/@version" failonerror="false" />
+        <xmlpoke file="${dnnManifestFile}" value="${projectVersion}" xpath="//*[@latestVersion='latestVersion']" failonerror="false" />
+
+        <foreach item="File" in="${packageDirectory}/temp/package/bin" property="assemblyFile">
+          <call target="set-assemblyVersion"/>
+          <xmlpoke file="${dnnManifestFile}" value="${assemblyVersion}" xpath="dotnetnuke/packages/package/components/component[@type='Assembly']/assemblies/assembly[name='${path::get-file-name(assemblyFile)}']/version" failonerror="false" />
+        </foreach>
+
+        <if test="${file::exists(referencesDirectory + '/DotNetNuke.dll')}">
+          <property name="assemblyFile" value="${referencesDirectory}/DotNetNuke.dll" />
+          <call target="set-assemblyVersion" />
+          <xmlpoke file="${dnnManifestFile}" value="${assemblyVersion}" xpath="dotnetnuke/packages/package/dependencies/dependency[@type='CoreVersion']" failonerror="false" />
+        </if>
+      </do>
+    </foreach>
+  </target>
+  <target name="create-resources-zip" description="Creates the Resources.zip file for content (Install package) files">
+    <copy todir="${packageDirectory}/temp/resources" flatten="false">
+      <fileset>
+        <patternset refid="content.fileset"/>
+        <exclude name="${packageDirectory}/**"/>
+      </fileset>
+    </copy>
+
+    <if test="${file::exists(packageDirectory + '/temp/resources/module.min.css')}">
+      <move file="${packageDirectory}/temp/resources/module.min.css" tofile="${packageDirectory}/temp/resources/module.css" overwrite="true" />
+    </if>
+
+    <zip zipfile="${packageDirectory}/temp/package/${packageName}" ziplevel="${zipLevel}">
+      <fileset basedir="${packageDirectory}/temp/resources">
+        <include name="**/*"/>
+      </fileset>
+    </zip>
+  </target>
+  <target name="create-packages" description="For the given license and type, creates packages for all specified DNN versions">
+    <property name="licenseFile" value="EULA-${packageLicense}"/>
+    <call target="switch-license"/>
+
+    <foreach item="String" in="${versions}" delim="," property="dnnVersion">
+      <call target="zip-package"/>
+    </foreach>
+  </target>
+  <target name="switch-license" description="Switches out the license file and updates the reference to it in the DNN 5 manifest file">
+    <delete>
+      <fileset>
+        <include name="${packageDirectory}/temp/package/EULA-*"/>
+      </fileset>
+    </delete>
+    <copy todir="${packageDirectory}/temp/package" flatten="true">
+      <fileset>
+        <include name="Licenses/${licenseFile}.*"/>
+      </fileset>
+    </copy>
+
+    <foreach item="File" property="dnnManifestFile">
+      <in>
+        <items>
+          <include name="${packageDirectory}/temp/package/*.dnn" />
+        </items>
+      </in>
+      <do>
+        <xmlpoke file="${dnnManifestFile}" value="${licenseFile}.htm" xpath="dotnetnuke/packages/package/license/@src" failonerror="false" />
+      </do>
+    </foreach>
+  </target>
+  <target name="zip-package" description="Zips up the files in the temp/package directory, getting the correct manifest file and using the correct naming convention">
+    <property name="packageType" value="Install"/>
+    <property name="packageType" value="Source" if="${includeSource}"/>
+    <zip zipfile="${packageDirectory}/${packageFileNameTemplate}.zip">
+      <fileset basedir="${packageDirectory}/temp/package">
+        <include name="**/*"/>
+      </fileset>
+    </zip>
+  </target>
+  <target name="add-sources-to-resource-zip" description="Adds the files for the Source package to the Resources.zip file">
+    <copy todir="${packageDirectory}/temp/resources" flatten="false">
+      <fileset>
+        <patternset refid="source.fileset"/>
+        <exclude name="${packageDirectory}/**"/>
+      </fileset>
+    </copy>
+
+    <zip zipfile="${packageDirectory}/temp/package/${packageName}" ziplevel="${zipLevel}">
+      <fileset basedir="${packageDirectory}/temp/resources">
+        <include name="**/*"/>
+      </fileset>
+    </zip>
+  </target>
+  <target name="combine-source" description="Combines the Install and Source packages with the same license into one .zip file">
+    <property name="packageType" value="Install"/>
+    <property name="installPackageFileName" value="${packageFileNameTemplate}"/>
+    <property name="packageType" value="Source"/>
+    <property name="sourcePackageFileName" value="${packageFileNameTemplate}"/>
+    <zip zipfile="${packageDirectory}/${projectName}_${sourcePackageLicenseName}_${projectVersion}.zip">
+      <fileset basedir="${packageDirectory}">
+        <include name="${installPackageFileName}.zip"/>
+        <include name="${sourcePackageFileName}.zip"/>
+      </fileset>
+    </zip>
+
+    <delete file="${packageDirectory}/${installPackageFileName}.zip" failonerror="false"/>
+    <delete file="${packageDirectory}/${sourcePackageFileName}.zip" failonerror="false"/>
+  </target>
+  <target name="cleanup" description="Deletes temporary files">
+    <delete file="${packageDirectory}\${projectName}_${sourcePackageLicenseName}_${projectVersion}_DependencySource.zip" failonerror="false"/>
+    <delete file="${packageDirectory}\${packageName}" failonerror="false"/>
+    <delete dir="${packageDirectory}\temp" failonerror="false"/>
+  </target>
+  <script language="C#">
+    <references>
+      <include name="System.dll" />
+      <include name="System.Core.dll" />
+      <include name="System.Xml.dll" />
+      <include name="System.Xml.Linq.dll" />
+    </references>
+    <imports>
+      <import namespace="System.Globalization" />
+      <import namespace="System.IO" />
+      <import namespace="System.Linq" />
+      <import namespace="System.Reflection" />
+      <import namespace="System.Text.RegularExpressions" />
+      <import namespace="System.Xml.Linq" />
+      <import namespace="System.Xml.XPath" />
+      <import namespace="NAnt.Core" />
+      <import namespace="NAnt.Core.Attributes" />
+      <import namespace="NAnt.Core.Filters" />
+      <import namespace="NAnt.Core.Tasks" />
+      <import namespace="NAnt.Core.Types" />
+      <import namespace="NAnt.Core.Util" />
+    </imports>
+    <code>
+      <![CDATA[
+[TaskName("copy-references")]
+public class CopyReferencesTask : CopyTask 
+{
+    private static readonly Regex projectRegex = new Regex(@"Project\(.*""([^""]+\.csproj)""", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    
+    [TaskAttribute("solutionFile", Required=true)]
+    public virtual FileInfo SolutionFile { get; set; }
+    
+    protected override void Initialize()
+    {
+        this.CopyFileSet = this.CopyFileSet ?? new FileSet();
+        base.Initialize();
+    }
+    
+    protected override void ExecuteTask() 
+    {
+        var solutionDirectory = Path.GetDirectoryName(this.SolutionFile.FullName);
+        var projects = from Match projectMatch in projectRegex.Matches(File.ReadAllText(this.SolutionFile.FullName))
+                       let projectName = projectMatch.Groups[1].Value
+                       where !Path.GetFileNameWithoutExtension(projectName).EndsWith("Tests")
+                       select Path.GetFullPath(!Path.IsPathRooted(projectName) ? Path.Combine(solutionDirectory, projectName) : projectName);
+        var references = (from project in projects
+                          let projectDirectory = Path.GetDirectoryName(project)
+                          let projectDocument = XDocument.Load(project)
+                          let rootNamespace = projectDocument.Root.Name.Namespace
+                          from reference in projectDocument.Descendants(rootNamespace + "Reference")
+                          where !reference.Descendants(rootNamespace + "Private").Any(p => p.Value.Equals("False", StringComparison.OrdinalIgnoreCase))
+                          let hintPath = reference.Descendants(rootNamespace + "HintPath").SingleOrDefault()
+                          where hintPath != null
+                          select Path.Combine(projectDirectory, hintPath.Value)).Distinct();
+        this.CopyFileSet.Includes.AddRange(references.ToArray());
+        
+        base.ExecuteTask();
+    }
+}
+[TaskName("generate-assembly-component")]
+public class GenerateAssemblyManifest : Task
+{
+    private readonly Lazy<FormatFunctions> _format;
+
+    public GenerateAssemblyManifest()
+    {
+        this._format = new Lazy<FormatFunctions>(() => new FormatFunctions(this.Project, this.Properties));
+    }
+
+    [TaskAttribute("assembliesDirectory", Required=true)]
+    public DirectoryInfo AssembliesDirectory { get; set; }
+
+    [TaskAttribute("xpath", Required=true)]
+    public string XPath { get; set; }
+
+    [TaskAttribute("manifestFile", Required=true)]
+    public FileInfo ManifestFile { get; set; }
+
+    protected override void ExecuteTask()
+    {
+        if (!this.AssembliesDirectory.Exists)
+        {
+            this.Log(Level.Error, "Assemblies directory {0} does not exist", this.AssembliesDirectory.FullName);
+            return;
+        }
+        
+        if (!this.ManifestFile.Exists)
+        {
+            this.Log(Level.Error, "Manifest file {0} does not exist", this.ManifestFile.FullName);
+            return;
+        }
+        
+        var count = 0;
+        var doc = XDocument.Load(this.ManifestFile.FullName);
+        var assembliesElement = doc.XPathSelectElement(this.XPath);
+        foreach (var assemblyFile in this.AssembliesDirectory.EnumerateFiles())
+        {
+            assembliesElement.Add(
+                new XElement("assembly", 
+                new XElement("path", "bin"),
+                new XElement("name", assemblyFile.Name),
+                new XElement("version", this._format.Value.FormatVersionInfo(assemblyFile.FullName))));
+            count++;
+        }
+        
+        doc.Save(this.ManifestFile.FullName);
+        this.Log(Level.Info, "Successfully added {0:G} assemblies to the assemblies component", count);
+    }
+}
+
+[FunctionSet("format", "Version")]
+public class FormatFunctions : FunctionSetBase
+{
+    public FormatFunctions(Project project, PropertyDictionary properties)
+      : base(project, properties)
+    {
+    }
+    
+    [Function("version-info")]
+    public string FormatVersionInfo(string fileName) 
+    {
+        var assemblyName = AssemblyName.GetAssemblyName(this.Project.GetFullPath(fileName));
+        return string.Format(CultureInfo.InvariantCulture, "{0:00}.{1:00}.{2:00}", assemblyName.Version.Major, assemblyName.Version.Minor, assemblyName.Version.Build);
+    }
+}]]>
+    </code>
+  </script>
+  <patternset id="content.fileset">
+    <include name="**/*.ascx" />
+    <include name="**/*.aspx" />
+    <include name="**/*.asmx" />
+    <include name="**/*.resx" />
+    <include name="**/*.html" />
+    <include name="**/*.htm" />
+    <include name="**/*.cshtml" />
+    <include name="**/*.vbhtml" />
+    <include name="**/*.js" />
+    <include name="**/*.css" />
+    <include name="**/*.jpg" />
+    <include name="**/*.gif" />
+    <include name="**/*.png" />
+    <include name="**/*.pdf" />
+    <include name="**/*.xml" />
+    <include name="**/*.xsd" />
+    <exclude name="Licenses/EULA-*"/>
+    <exclude name="ReleaseNotes_*.htm"/>
+    <exclude name="CustomDictionary.xml"/>
+    <exclude name="??.??.??.txt" />
+    <exclude name="_ReSharper.*/**"/>
+    <exclude name="**/obj/**"/>
+    <exclude name="${referencesDirectory}/**"/>
+    <exclude name="packages/**" />
+  </patternset>
+  <patternset id="source.fileset">
+    <include name="**/*.cs"/>
+    <include name="**/*.vb"/>
+    <include name="**/*.sln"/>
+    <include name="**/*.csproj"/>
+    <include name="**/*.vbproj"/>
+    <include name="**/*.build"/>
+    <include name="**/*.dnn"/>
+    <include name="**/*.docx"/>
+    <include name="**/*.config"/>
+    <include name="**/*.dbml"/>
+    <include name="**/*.dbml.layout"/>
+    <include name="**/*.rpx"/>
+    <include name="**/*.txt"/>
+    <include name="Licenses/EULA-*"/>
+    <include name="ReleaseNotes_*.htm"/>
+    <include name="CustomDictionary.xml"/>
+    <include name="??.??.??.txt" />
+    <include name="MSBuild/*.dll"/>
+    <include name="MSBuild/*.targets"/>
+    <exclude name="**/obj/**"/>
+    <exclude name="Release.txt" />
+  </patternset>
+</project>

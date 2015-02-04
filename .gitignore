@@ -1,0 +1,7 @@
+*.suo
+*.GhostDoc.xml
+*.user
+obj/
+package/
+packages/
+StyleCop.Cache
