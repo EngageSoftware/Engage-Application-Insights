@@ -1,5 +1,5 @@
 ﻿// <copyright file="AssemblyInfo.cs" company="Engage Software">
-// Engage: Application Insights for DNN
+// Engage: Application Insights
 // Copyright (c) 2004-2015
 // by Engage Software ( http://www.engagesoftware.com )
 // </copyright>
@@ -13,11 +13,11 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Engage Application_Insights_for_DNN")]
+[assembly: AssemblyTitle("Engage: Application Insights")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Engage Software")]
-[assembly: AssemblyProduct("Engage Application_Insights_for_DNN")]
+[assembly: AssemblyProduct("Engage Application Insights")]
 [assembly: AssemblyCopyright("Copyright © Engage Software 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

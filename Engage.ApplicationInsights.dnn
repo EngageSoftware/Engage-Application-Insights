@@ -1,7 +1,7 @@
 ﻿<dotnetnuke type="Package" version="5.0">
   <packages>
-    <package name="Engage: Application Insights for DNN" type="Module" version="1.0.0">
-      <friendlyName>Engage: Application Insights for DNN</friendlyName>
+    <package name="Engage: Application Insights" type="Module" version="1.0.0">
+      <friendlyName>Engage: Application Insights</friendlyName>
       <description></description>
       <owner>
         <name>Engage Software</name>
@@ -96,12 +96,13 @@
         </component>
         <component type="Module">
           <desktopModule>
-            <moduleName>Engage: Application Insights for DNN</moduleName>
+            <moduleName>Engage: Application Insights</moduleName>
             <foldername>Engage/ApplicationInsights</foldername>
             <businessControllerClass>Engage.Dnn.ApplicationInsights.FeaturesController</businessControllerClass>
             <moduleDefinitions>
               <moduleDefinition>
-                <friendlyName>Engage: Application Insights for DNN</friendlyName>
+                <friendlyName>Engage: Application Insights</friendlyName>
+                <definitionName>Engage: Application Insights</definitionName>
                 <defaultCacheTime>0</defaultCacheTime>
                 <moduleControls>
                   <moduleControl>

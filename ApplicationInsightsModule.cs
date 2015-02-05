@@ -1,5 +1,5 @@
 ﻿// <copyright file="ApplicationInsightsModule.cs" company="Engage Software">
-// Engage.ApplicationInsights
+// Engage: Application Insights
 // Copyright (c) 2004-2015
 // by Engage Software ( http://www.engagesoftware.com )
 // </copyright>
