@@ -4,6 +4,185 @@
         <name>DotNetNuke.Web</name>
     </assembly>
     <members>
+        <member name="T:DotNetNuke.Web.Common.Internal.DotNetNukeHttpApplication">
+            <summary>
+            DotNetNuke Http Application. It will handle Start, End, BeginRequest, Error event for whole application.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.Services.DnnController.PortalSettings">
+            <summary>
+            PortalSettings for the current portal
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.Services.DnnController.UserInfo">
+            <summary>
+            UserInfo for the current user
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.Services.DnnController.ActiveModule">
+            <summary>
+            ModuleInfo for the current module
+            <remarks>Will be null unless a valid pair of module and tab ids were provided in the request</remarks>
+            </summary>
+        </member>
+        <member name="T:DotNetNuke.Web.InternalServices.MessagingServiceController.SearchResult">
+            <summary>
+            This class stores a single search result needed by jQuery Tokeninput
+            </summary>
+        </member>
+        <member name="M:DotNetNuke.Web.Mvp.SettingsViewBase.OnSettingsLoaded">
+            <summary>
+            The OnSettingsLoaded method is called when the Settings have been Loaded 
+            </summary>
+        </member>
+        <member name="M:DotNetNuke.Web.Mvp.SettingsViewBase.OnSavingSettings">
+            <summary>
+            OnSavingSettings method is called just before the Settings are saved
+            </summary>
+        </member>
+        <member name="M:DotNetNuke.Web.Services.AuthenticatorBase.TryToAuthenticate(System.Web.HttpContextBase,System.Int32)">
+            <summary>
+            Attempts to authenticate the current request
+            </summary>
+            <param name="context">Context of the currect request</param>
+            <param name="portalId">PortalID to authenticate in</param>
+        </member>
+        <member name="T:DotNetNuke.Web.Services.AuthorizeAttributeBase">
+            <summary>
+            A base class for authorize attributes
+            <remarks>
+            This is based on the ASP.Net MVC AuthorizeAttribute, with an enhancemtn to pass AuthorizationContext to AuthorizeCore.
+            The code to deal with the cache and set the result should be common to all AuthorizationFilters</remarks>
+            </summary>
+        </member>
+        <member name="T:DotNetNuke.Web.Services.IOverrideDefaultAuthLevel">
+            <summary>
+            Implementing this interface on an Auth filter will allow the filter to override the default
+            Host level auth provided by DnnController
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.Services.DnnAuthorizeAttribute.RequiresHost">
+            <summary>
+            Indicates that Host level credentials are required
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.Services.DnnAuthorizeAttribute.AllowAnonymous">
+            <summary>
+            Allows authorization of anonymous users
+            <remarks>
+            AllowAnonymous is used to allow anonymous access to specific methods in a controller that has a higher DefaultAuthLevel
+            This setting will be ignored if any of User, StaticRoles or Host level access are also specified
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:DotNetNuke.Web.Services.IMapRoute.MapRoute(System.String,System.String,System.Object,System.Object,System.String[])">
+            <summary>
+            Sets up the route(s) for DotNetNuke services
+            </summary>
+            <param name="moduleFolderName">The name of the folder under DesktopModules in which your module resides</param>
+            <param name="url">The parameterized portion of the route</param>
+            <param name="defaults">Default values for the route parameters</param>
+            <param name="constraints">The constraints</param>
+            <param name="namespaces">The namespace(s) in which to locate the controllers for this route</param>
+            <returns>A list of all routes that were registered.</returns>
+        </member>
+        <member name="M:DotNetNuke.Web.Services.IMapRoute.MapRoute(System.String,System.String,System.Object,System.String[])">
+            <summary>
+            Sets up the route(s) for DotNetNuke services
+            </summary>
+            <param name="moduleFolderName">The name of the folder under DesktopModules in which your module resides</param>
+            <param name="url">The parameterized portion of the route</param>
+            <param name="defaults">Default values for the route parameters</param>
+            <param name="namespaces">The namespace(s) in which to locate the controllers for this route</param>
+            <returns>A list of all routes that were registered.</returns>
+        </member>
+        <member name="M:DotNetNuke.Web.Services.IMapRoute.MapRoute(System.String,System.String,System.String[])">
+            <summary>
+            Sets up the route(s) for DotNetNuke services
+            </summary>
+            <param name="moduleFolderName">The name of the folder under DesktopModules in which your module resides</param>
+            <param name="url">The parameterized portion of the route</param>
+            <param name="namespaces">The namespace(s) in which to locate the controllers for this route</param>
+            <returns>A list of all routes that were registered.</returns>
+        </member>
+        <member name="T:DotNetNuke.Web.UI.WebControls.DnnMemberListControl">
+            <summary>
+            This control is used for displaying a template based list of users based upon various filter and sorting capabilities.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.HeaderTemplate">
+            <summary>
+            Gets or sets the template for displaying the header section of a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.RowHeaderTemplate">
+            <summary>
+            Gets or sets the template for the row header.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.ItemTemplate">
+            <summary>
+            Gets or sets the template for displaying an item in a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.RowFooterTemplate">
+            <summary>
+            Gets or sets the template for the row footer.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.AlternatingRowHeaderTemplate">
+            <summary>
+            Gets or sets the template for displaying the alternating row headers in a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.AlternatingItemTemplate">
+            <summary>
+            Gets or sets the template for displaying the alternating items in a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.AlternatingRowFooterTemplate">
+            <summary>
+            Gets or sets the template for displaying the alternating row footers in a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.FooterTemplate">
+            <summary>
+            Gets or sets the template for displaying the footer section of a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.PageIndex">
+            <summary>
+            Gets or sets the index of the currently displayed page.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.PageSize">
+            <summary>
+            Gets or sets the number of records to display on a page in a DnnMemberListControl object.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.RowSize">
+            <summary>
+            Gets or sets the number of items displayed on each row.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.SortBy">
+            <summary>
+            Sets the property value to sort by.
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.SortAscending">
+            <summary>
+            Gets or sets the sort direction
+            </summary>
+        </member>
+        <member name="P:DotNetNuke.Web.UI.WebControls.DnnMemberListControl.Filters">
+            <summary>
+            Gets or sets the collection of filters to apply when getting the list of members.
+            </summary>
+            <remarks>
+            Posible keys are: RoleId, RelationshipTypeId, UserId, Profile:PropertyName, FirstName, LastName, DisplayName, Username, Email.
+            </remarks>
+        </member>
         <member name="M:DotNetNuke.Web.UI.WebControls.Extensions.ListControlExtensions.FindByTextWithIgnoreCase(System.Web.UI.WebControls.ListItemCollection,System.String)">
             <summary>
             Use this method instead of ListItemCollection.FindByText to find the specific item with case-insensitive.
