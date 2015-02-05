@@ -14,6 +14,9 @@ namespace Engage.Dnn.ApplicationInsights
     using System;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
+    using System.Web;
+    using System.Web.Hosting;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -79,6 +82,7 @@ namespace Engage.Dnn.ApplicationInsights
             {
                 // TODO: turn Log4Net appender and HTTP Module on and off based on presence of key
                 this.SetInstrumentationKeyInConfig(e.InstrumentationKey);
+                this.SetInstrumentationKeyInJavaScript(e.InstrumentationKey);
 
                 this.View.Model.InstrumentationKey = this.InstrumentationKey;
             }
@@ -111,6 +115,19 @@ namespace Engage.Dnn.ApplicationInsights
             var targetDocument = new XmlDocument();
             targetDocument.Load(ApplicationInsightsConfigMapPath);
             xmlMerge.UpdateConfig(targetDocument, ApplicationInsightsConfigFileName);
+        }
+
+        /// <summary>Sets the instrumentation key in the <c>ai.js</c> file.</summary>
+        /// <param name="instrumentationKey">The new instrumentation key.</param>
+        private void SetInstrumentationKeyInJavaScript(string instrumentationKey)
+        {
+            var encodedInstrumentationKeyString = HttpUtility.JavaScriptStringEncode(instrumentationKey, true);
+            var instrumentationKeyLineRegex = new Regex(@"(\binstrumentationKey\s*:\s*)""([^""]*)""");
+            var javaScriptFilePath = HostingEnvironment.MapPath("~/DesktopModules/" + this.ModuleInfo.DesktopModule.FolderName + "/ai.js");
+            var lines = from line in File.ReadAllLines(javaScriptFilePath)
+                        select instrumentationKeyLineRegex.Replace(line, "$1" + encodedInstrumentationKeyString.Replace("$", "$$"));
+
+            File.WriteAllLines(javaScriptFilePath, lines);
         }
     }
 }
