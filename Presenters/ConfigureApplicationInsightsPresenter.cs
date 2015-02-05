@@ -22,8 +22,6 @@ namespace Engage.Dnn.ApplicationInsights
     using DotNetNuke.Services.Installer;
     using DotNetNuke.Web.Mvp;
 
-    using Engage.Util;
-
     using WebFormsMvp;
 
     /// <summary>Acts as a presenter for <see cref="IConfigureApplicationInsightsView"/></summary>

@@ -85,14 +85,6 @@
       <HintPath>..\..\inetpub\wwwroot\dierbergs.local\Website\DesktopModules\Dierbergs\bin\DotNetNuke.Web.Client.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Engage.Dnn.Framework, Version=3.1.6.26594, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Framework\Engage.Dnn.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Engage.Framework, Version=3.1.4.26592, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\Framework\Engage.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.ApplicationInsights, Version=0.12.0.17386, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>packages\Microsoft.ApplicationInsights.0.12.0-build17386\lib\net40\Microsoft.ApplicationInsights.dll</HintPath>
@@ -167,6 +159,7 @@
     <Compile Include="ApplicationInsightsModule.cs" />
     <Compile Include="FeaturesController.cs" />
     <Compile Include="Models\ViewModels\ConfigureApplicationInsightsViewModel.cs" />
+    <Compile Include="Models\XmlExtensions.cs" />
     <Compile Include="Presenters\ConfigureApplicationInsightsPresenter.cs" />
     <Compile Include="Views\ConfigureApplicationInsights.ascx.designer.cs">
       <DependentUpon>ConfigureApplicationInsights.ascx</DependentUpon>
