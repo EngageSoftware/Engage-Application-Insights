@@ -13,12 +13,15 @@ namespace Engage.Dnn.ApplicationInsights
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Xml;
     using System.Xml.Linq;
 
     using DotNetNuke.Common;
     using DotNetNuke.Services.Installer;
     using DotNetNuke.Web.Mvp;
+
+    using Engage.Util;
 
     using WebFormsMvp;
 
@@ -74,21 +77,8 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(@"<configuration><nodes>
-<node path='/ns:ApplicationInsights' 
-      targetpath='/ns:ApplicationInsights/ns:InstrumentationKey' 
-      action='update' 
-      collision='save' 
-      nameSpace='http://schemas.microsoft.com/ApplicationInsights/2013/Settings' 
-      nameSpacePrefix='ns'>
-    <InstrumentationKey>"
-                    + e.InstrumentationKey
-+ "</InstrumentationKey></node></nodes></configuration>");
-                var xmlMerge = new XmlMerge(xmlDocument, this.ModuleInfo.DesktopModule.Version, this.ModuleInfo.DesktopModule.ModuleName);
-                var targetDocument = new XmlDocument();
-                targetDocument.Load(ApplicationInsightsConfigMapPath);
-                xmlMerge.UpdateConfig(targetDocument, ApplicationInsightsConfigFileName);
+                // TODO: turn Log4Net appender and HTTP Module on and off based on presence of key
+                this.SetInstrumentationKeyInConfig(e.InstrumentationKey);
 
                 this.View.Model.InstrumentationKey = this.InstrumentationKey;
             }
@@ -96,6 +86,31 @@ namespace Engage.Dnn.ApplicationInsights
             {
                 this.ProcessModuleLoadException(exc);
             }
+        }
+
+        /// <summary>Sets the instrumentation key in the <c>ApplicationInsights.config</c> file.</summary>
+        /// <param name="instrumentationKey">The new instrumentation key.</param>
+        private void SetInstrumentationKeyInConfig(string instrumentationKey)
+        {
+            var xmlMergeConfiguration = new XDocument(
+                new XElement(
+                    "configuration",
+                    new XElement(
+                        "nodes",
+                        new XElement(
+                            "node",
+                            new XAttribute("path", "/ns:ApplicationInsights"),
+                            new XAttribute("targetpath", "/ns:ApplicationInsights/ns:InstrumentationKey"),
+                            new XAttribute("action", "update"),
+                            new XAttribute("collision", "save"),
+                            new XAttribute("nameSpace", Ns.NamespaceName),
+                            new XAttribute("nameSpacePrefix", "ns"),
+                            new XElement("InstrumentationKey", instrumentationKey)))));
+
+            var xmlMerge = new XmlMerge(xmlMergeConfiguration.AsXmlDocument(), this.ModuleInfo.DesktopModule.Version, this.ModuleInfo.DesktopModule.ModuleName);
+            var targetDocument = new XmlDocument();
+            targetDocument.Load(ApplicationInsightsConfigMapPath);
+            xmlMerge.UpdateConfig(targetDocument, ApplicationInsightsConfigFileName);
         }
     }
 }
