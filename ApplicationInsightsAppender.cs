@@ -18,7 +18,6 @@ namespace Engage.Dnn.ApplicationInsights
     using log4net.Core;
 
     using Microsoft.ApplicationInsights;
-    using Microsoft.ApplicationInsights.Extensibility;
 
     /// <summary>A Log4Net appender for Application Insights</summary>
     /// <remarks>We can't use the official appender because DNN doesn't use the official Log4Net assembly</remarks>

@@ -37,13 +37,7 @@ namespace Engage.Dnn.ApplicationInsights
                     return;
                 }
 
-                var instrumentationKey = this.InstrumentationKeyTextBox.Text;
-                if (string.IsNullOrWhiteSpace(instrumentationKey))
-                {
-                    instrumentationKey = Guid.Empty.ToString();
-                }
-
-                this.UpdateConfiguration(this, new UpdatingConfigurationEventArgs(instrumentationKey));
+                this.UpdateConfiguration(this, new UpdatingConfigurationEventArgs(this.InstrumentationKeyTextBox.Text));
             }
             catch (Exception exc)
             {

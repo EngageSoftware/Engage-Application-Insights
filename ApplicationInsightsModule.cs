@@ -30,7 +30,7 @@ namespace Engage.Dnn.ApplicationInsights
                 var page = application.Context.CurrentHandler as Page;
                 if (page != null)
                 {
-                    page.PreRenderComplete += (o, eventArgs) => ClientResourceManager.RegisterScript(page, "~/DesktopModules/Engage/ApplicationInsights/ai.js");
+                    page.InitComplete += (o, eventArgs) => ClientResourceManager.RegisterScript(page, "~/DesktopModules/Engage/ApplicationInsights/ai.js", 0, "DnnPageHeaderProvider");
                 }
             };
         }

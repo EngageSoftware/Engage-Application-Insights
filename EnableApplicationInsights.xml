@@ -1,0 +1,18 @@
+﻿<configuration>
+  <nodes configfile="web.config">
+    <node path="/configuration/system.webServer/modules" action="update" key="name" collision="ignore">
+      <remove name="ApplicationInsightsWebTracking"/>
+      <add name="ApplicationInsightsWebTracking"
+           type="Microsoft.ApplicationInsights.Extensibility.Web.RequestTracking.WebRequestTrackingModule, Microsoft.ApplicationInsights.Extensibility.Web"
+           preCondition="managedHandler"/>
+      <add name="EngageApplicationInsights"
+           type="Engage.Dnn.ApplicationInsights.ApplicationInsightsModule, Engage.ApplicationInsights"
+           preCondition="managedHandler"/>
+    </node>
+  </nodes>
+  <nodes configfile="DotNetNuke.log4net.config">
+    <node path="/log4net/root" action="update" key="ref" collision="ignore">
+      <appender-ref ref="aiAppender"/>
+    </node>
+  </nodes>
+</configuration>

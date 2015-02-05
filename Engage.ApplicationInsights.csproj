@@ -166,15 +166,7 @@
     <Compile Include="ApplicationInsightsAppender.cs" />
     <Compile Include="ApplicationInsightsModule.cs" />
     <Compile Include="FeaturesController.cs" />
-    <Compile Include="Models\CollectionExtensions.cs" />
-    <Compile Include="Models\HostSettingsRepository.cs" />
-    <Compile Include="Models\ISettingsRepository.cs" />
-    <Compile Include="Models\Setting.cs" />
-    <Compile Include="Models\SettingScope.cs" />
-    <Compile Include="Models\ModuleSettingsRepository.cs" />
-    <Compile Include="Models\SettingsRepositoryBase.cs" />
     <Compile Include="Models\ViewModels\ConfigureApplicationInsightsViewModel.cs" />
-    <Compile Include="ModuleSettings.cs" />
     <Compile Include="Presenters\ConfigureApplicationInsightsPresenter.cs" />
     <Compile Include="Views\ConfigureApplicationInsights.ascx.designer.cs">
       <DependentUpon>ConfigureApplicationInsights.ascx</DependentUpon>
@@ -188,7 +180,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ai.js" />
+    <Content Include=".gitignore" />
+    <Content Include="ai.template.js" />
+    <Content Include="DisableApplicationInsights.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Licenses\EULA-Free.htm" />
     <Content Include="Licenses\EULA-Free.txt" />
     <Content Include="References\DotNetNuke.Instrumentation.dll" />
@@ -205,6 +201,10 @@
     <Content Include="References\WebFormsMvp.dll" />
     <Content Include="References\DotNetNuke.dll" />
     <Content Include="ApplicationInsights.config" />
+    <Content Include="EnableApplicationInsights.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include=".jscsrc" />
     <None Include="Engage.ApplicationInsights.dnn">
       <SubType>Designer</SubType>
     </None>
@@ -214,7 +214,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ReleaseNotes_00.01.00.htm" />
+    <Content Include="ReleaseNotes_00.05.00.htm" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

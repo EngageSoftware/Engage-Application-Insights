@@ -14,13 +14,11 @@ namespace Engage.Dnn.ApplicationInsights
     using System;
     using System.IO;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Web;
     using System.Web.Hosting;
-    using System.Xml;
     using System.Xml.Linq;
 
-    using DotNetNuke.Common;
+    using DotNetNuke.Entities.Controllers;
     using DotNetNuke.Services.Installer;
     using DotNetNuke.Web.Mvp;
 
@@ -47,15 +45,26 @@ namespace Engage.Dnn.ApplicationInsights
         }
 
         /// <summary>Gets the mapped path to the Application Insights configuration file.</summary>
+        private static string ApplicationInsightsTemplateMapPath
+        {
+            get { return HostingEnvironment.MapPath("~/Config/" + ApplicationInsightsConfigFileName); }
+        }
+
+        /// <summary>Gets the mapped path to the Application Insights configuration file.</summary>
         private static string ApplicationInsightsConfigMapPath
         {
-            get { return Path.Combine(Globals.ApplicationMapPath, ApplicationInsightsConfigFileName); }
+            get { return HostingEnvironment.MapPath("~/" + ApplicationInsightsConfigFileName); }
         }
 
         /// <summary>Gets the configured instrumentation key.</summary>
-        private string InstrumentationKey
+        private static string InstrumentationKey
         {
-            get { return XDocument.Load(ApplicationInsightsConfigMapPath).Element(Ns + "ApplicationInsights").Element(Ns + "InstrumentationKey").Value; }
+            get
+            {
+                return File.Exists(ApplicationInsightsConfigMapPath)
+                    ? XDocument.Load(ApplicationInsightsConfigMapPath).Element(Ns + "ApplicationInsights").Element(Ns + "InstrumentationKey").Value
+                    : null;
+            }
         }
 
         /// <summary>Handles the <see cref="IModuleViewBase.Initialize"/> event of the <see cref="Presenter{TView}.View"/>.</summary>
@@ -65,7 +74,7 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                this.View.Model.InstrumentationKey = this.InstrumentationKey;
+                this.View.Model.InstrumentationKey = InstrumentationKey;
             }
             catch (Exception exc)
             {
@@ -80,16 +89,60 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                // TODO: turn Log4Net appender and HTTP Module on and off based on presence of key
-                this.SetInstrumentationKeyInConfig(e.InstrumentationKey);
-                this.SetInstrumentationKeyInJavaScript(e.InstrumentationKey);
+                var isEnabled = !string.IsNullOrWhiteSpace(InstrumentationKey);
+                var willBeEnabled = !string.IsNullOrWhiteSpace(e.InstrumentationKey);
+                if (willBeEnabled)
+                {
+                    if (!isEnabled)
+                    {
+                        this.EnableApplicationInsights();
+                    }
 
-                this.View.Model.InstrumentationKey = this.InstrumentationKey;
+                    this.SetInstrumentationKeyInConfig(e.InstrumentationKey);
+                    this.SetInstrumentationKeyInJavaScript(e.InstrumentationKey);
+                }
+                else
+                {
+                    this.DisableApplicationInsights();
+                }
+
+                this.View.Model.InstrumentationKey = InstrumentationKey;
             }
             catch (Exception exc)
             {
                 this.ProcessModuleLoadException(exc);
             }
+        }
+
+        /// <summary>Applies the XML Merge instructions to the configuration files.</summary>
+        /// <param name="sourceFileName">Path to the XML Merge configuration file.</param>
+        private void ApplyXmlMerge(string sourceFileName)
+        {
+            var xmlMerge = new XmlMerge(sourceFileName, this.ModuleInfo.DesktopModule.Version, this.ModuleInfo.DesktopModule.FriendlyName);
+            xmlMerge.UpdateConfigs();
+        }
+
+        /// <summary>Applies the XML Merge instructions to the configuration files.</summary>
+        /// <param name="sourceDoc">The XML document with the merge instructions.</param>
+        private void ApplyXmlMerge(XDocument sourceDoc)
+        {
+            var xmlMerge = new XmlMerge(sourceDoc.AsXmlDocument(), this.ModuleInfo.DesktopModule.Version, this.ModuleInfo.DesktopModule.FriendlyName);
+            xmlMerge.UpdateConfigs();
+        }
+
+        /// <summary>Enables Application Insights integration for the site.</summary>
+        private void EnableApplicationInsights()
+        {
+            File.Copy(ApplicationInsightsTemplateMapPath, ApplicationInsightsConfigMapPath, false);
+            this.ApplyXmlMerge(this.MapModuleFilePath("EnableApplicationInsights.xml"));
+        }
+
+        /// <summary>Disables Application Insights integration for the site.</summary>
+        private void DisableApplicationInsights()
+        {
+            this.ApplyXmlMerge(this.MapModuleFilePath("DisableApplicationInsights.xml"));
+            File.Delete(this.MapModuleFilePath("ai.js"));
+            File.Delete(ApplicationInsightsConfigMapPath);
         }
 
         /// <summary>Sets the instrumentation key in the <c>ApplicationInsights.config</c> file.</summary>
@@ -101,6 +154,7 @@ namespace Engage.Dnn.ApplicationInsights
                     "configuration",
                     new XElement(
                         "nodes",
+                        new XAttribute("configfile", ApplicationInsightsConfigFileName),
                         new XElement(
                             "node",
                             new XAttribute("path", "/ns:ApplicationInsights"),
@@ -111,23 +165,29 @@ namespace Engage.Dnn.ApplicationInsights
                             new XAttribute("nameSpacePrefix", "ns"),
                             new XElement("InstrumentationKey", instrumentationKey)))));
 
-            var xmlMerge = new XmlMerge(xmlMergeConfiguration.AsXmlDocument(), this.ModuleInfo.DesktopModule.Version, this.ModuleInfo.DesktopModule.ModuleName);
-            var targetDocument = new XmlDocument();
-            targetDocument.Load(ApplicationInsightsConfigMapPath);
-            xmlMerge.UpdateConfig(targetDocument, ApplicationInsightsConfigFileName);
+            this.ApplyXmlMerge(xmlMergeConfiguration);
         }
 
         /// <summary>Sets the instrumentation key in the <c>ai.js</c> file.</summary>
         /// <param name="instrumentationKey">The new instrumentation key.</param>
         private void SetInstrumentationKeyInJavaScript(string instrumentationKey)
         {
+            var templateInstrumentationKeyString = '"' + Guid.Empty.ToString() + '"';
             var encodedInstrumentationKeyString = HttpUtility.JavaScriptStringEncode(instrumentationKey, true);
-            var instrumentationKeyLineRegex = new Regex(@"(\binstrumentationKey\s*:\s*)""([^""]*)""");
-            var javaScriptFilePath = HostingEnvironment.MapPath("~/DesktopModules/" + this.ModuleInfo.DesktopModule.FolderName + "/ai.js");
-            var lines = from line in File.ReadAllLines(javaScriptFilePath)
-                        select instrumentationKeyLineRegex.Replace(line, "$1" + encodedInstrumentationKeyString.Replace("$", "$$"));
+            var lines = from line in File.ReadAllLines(this.MapModuleFilePath("ai.template.js"))
+                        select line.Replace(templateInstrumentationKeyString, encodedInstrumentationKeyString);
 
-            File.WriteAllLines(javaScriptFilePath, lines);
+            File.WriteAllLines(this.MapModuleFilePath("ai.js"), lines);
+
+            HostController.Instance.IncrementCrmVersion(true);
+        }
+
+        /// <summary>Gets the mapped path for a file in the module's folder.</summary>
+        /// <param name="relativeFilePath">The file path relative to the module's folder.</param>
+        /// <returns>The physical path on the server.</returns>
+        private string MapModuleFilePath(string relativeFilePath)
+        {
+            return HostingEnvironment.MapPath("~/DesktopModules/" + this.ModuleInfo.DesktopModule.FolderName + "/" + relativeFilePath);
         }
     }
 }

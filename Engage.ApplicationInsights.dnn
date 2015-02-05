@@ -26,7 +26,9 @@
         <component type="File">
           <files>
             <file>
+              <path>Config</path>
               <name>ApplicationInsights.config</name>
+              <sourceFileName>ApplicationInsights.config</sourceFileName>
             </file>
           </files>
         </component>
@@ -35,14 +37,7 @@
             <configFile>web.config</configFile>
             <install>
               <configuration>
-                <nodes>
-                  <node path="/configuration/system.webServer/modules" action="update" key="name" collision="ignore">
-                    <remove name="ApplicationInsightsWebTracking"/>
-                    <add name="ApplicationInsightsWebTracking"
-                         type="Microsoft.ApplicationInsights.Extensibility.Web.RequestTracking.WebRequestTrackingModule, Microsoft.ApplicationInsights.Extensibility.Web"
-                         preCondition="managedHandler"/>
-                  </node>
-                </nodes>
+                <nodes />
               </configuration>
             </install>
             <uninstall>
@@ -74,9 +69,6 @@
                         <conversionPattern value="%message%newline"/>
                       </layout>
                     </appender>
-                  </node>
-                  <node path="/log4net/root" action="update" key="ref" collision="ignore">
-                    <appender-ref ref="aiAppender"/>
                   </node>
                   <node path="/log4net/root/level" action="updateattribute" name="value" value="ALL" />
                 </nodes>
