@@ -1,6 +1,8 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="True" CodeBehind="ConfigureApplicationInsights.ascx.cs" Inherits="Engage.Dnn.ApplicationInsights.ConfigureApplicationInsights" %>
 <%@ Register TagPrefix="dnn" TagName="Label" Src="~/controls/labelControl.ascx" %>
+
 <asp:Panel runat="server" CssClass="dnnForm" DefaultButton="SubmitButton">
+    <p class="dnnFormMessage dnnFormInfo"><%:new HtmlString(this.LocalizeString("Info.HTML")) %></p>
     <div class="dnnFormItem">
         <dnn:Label runat="server" ResourceKey="InstrumentationKey" />
         <asp:TextBox runat="server" Text="<%#Model.InstrumentationKey %>" ID="InstrumentationKeyTextBox" />
