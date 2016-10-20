@@ -33,10 +33,10 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(this.telemetryClient.Context.InstrumentationKey))
-                {
-                    return;
-                }
+                ////if (string.IsNullOrWhiteSpace(this.telemetryClient.Context.InstrumentationKey))
+                ////{
+                ////    return;
+                ////}
 
                 if (loggingEvent.ExceptionObject == null)
                 {
