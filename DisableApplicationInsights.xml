@@ -3,6 +3,7 @@
     <node path="/configuration/system.webServer/modules/remove[@name='ApplicationInsightsWebTracking']" action="remove" />
     <node path="/configuration/system.webServer/modules/add[@name='ApplicationInsightsWebTracking']" action="remove" />
     <node path="/configuration/system.webServer/modules/add[@name='EngageApplicationInsights']" action="remove" />
+    <node path="/configuration/system.web/httpModules/add[@name='ApplicationInsightsWebTracking']" action="remove" />
   </nodes>
   <nodes configfile="DotNetNuke.log4net.config">
     <node path="/log4net/root/appender-ref[@ref='aiAppender']" action="remove" />
