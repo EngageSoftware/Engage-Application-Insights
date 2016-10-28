@@ -22,7 +22,6 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <ApplicationInsightsResourceId>/subscriptions/96f4677c-3f75-4c30-8640-c2551a1a01eb/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/Application Insights for DNN</ApplicationInsightsResourceId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
