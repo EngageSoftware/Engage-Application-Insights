@@ -207,7 +207,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ReleaseNotes_01.00.00.htm" />
+    <Content Include="ReleaseNotes_01.00.01.htm" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
