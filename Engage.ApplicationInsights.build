@@ -371,6 +371,8 @@ public class FormatFunctions : FunctionSetBase
     <exclude name="**/obj/**"/>
     <exclude name="${referencesDirectory}/**"/>
     <exclude name="packages/**" />
+    <exclude name="CustomDictionary.xml"/>
+    <exclude name="**/bin/**"/>
   </patternset>
   <patternset id="source.fileset">
     <include name="**/*.cs"/>
@@ -392,6 +394,7 @@ public class FormatFunctions : FunctionSetBase
     <include name="??.??.??.txt" />
     <include name="MSBuild/*.dll"/>
     <include name="MSBuild/*.targets"/>
+    <include name="CustomDictionary.xml"/>
     <exclude name="**/obj/**"/>
     <exclude name="Release.txt" />
   </patternset>
