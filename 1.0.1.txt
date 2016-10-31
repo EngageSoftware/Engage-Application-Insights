@@ -1,0 +1,6 @@
+﻿' Remove old Application Insights assemblies
+
+bin\Microsoft.ApplicationInsights.Extensibility.PerfCollector.dll
+bin\Microsoft.ApplicationInsights.Extensibility.RuntimeTelemetry.dll
+bin\Microsoft.ApplicationInsights.Extensibility.Web.dll
+bin\Microsoft.Diagnostics.Instrumentation.Extensions.Intercept.dll

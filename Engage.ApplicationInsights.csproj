@@ -171,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
+    <Content Include="1.0.1.txt" />
     <Content Include="ai.template.js" />
     <Content Include="DisableApplicationInsights.xml">
       <SubType>Designer</SubType>

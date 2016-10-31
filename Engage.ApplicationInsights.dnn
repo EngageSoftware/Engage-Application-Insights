@@ -15,6 +15,7 @@
         <dependency type="CoreVersion">5.0.0</dependency>
       </dependencies>
       <components>
+        <component type="Cleanup" version="1.0.1" fileName="1.0.1.txt" />
         <component type="ResourceFile">
           <resourceFiles>
             <basePath>DesktopModules/Engage/ApplicationInsights</basePath>
