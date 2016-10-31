@@ -38,7 +38,16 @@
             <configFile>web.config</configFile>
             <install>
               <configuration>
-                <nodes />
+                <nodes>
+                  <node path="/configuration/system.webServer/modules/add[@name='ApplicationInsightsWebTracking']" 
+                        action="updateattribute" 
+                        name="type" 
+                        value="Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule, Microsoft.AI.Web" />
+                  <node path="/configuration/system.web/httpModules/add[@name='ApplicationInsightsWebTracking']" 
+                        action="updateattribute" 
+                        name="type"
+                        value="Microsoft.ApplicationInsights.Web.ApplicationInsightsHttpModule, Microsoft.AI.Web" />
+                 </nodes>
               </configuration>
             </install>
             <uninstall>
