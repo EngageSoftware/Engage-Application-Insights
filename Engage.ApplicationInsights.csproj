@@ -214,6 +214,7 @@
     <Content Include="web.config" />
     <Content Include="packages.config" />
     <Content Include="Engage.ApplicationInsights.ruleset" />
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ReleaseNotes_01.00.01.htm" />
