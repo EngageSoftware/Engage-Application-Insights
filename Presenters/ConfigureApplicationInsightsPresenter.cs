@@ -22,28 +22,53 @@ namespace Engage.Dnn.ApplicationInsights
     public sealed class ConfigureApplicationInsightsPresenter : ModulePresenter<IConfigureApplicationInsightsView, ConfigureApplicationInsightsViewModel>
     {
         /// <summary>The XML merge service</summary>
-        private readonly XmlMergeService xmlMergeService;
+        private readonly Lazy<XmlMergeService> xmlMergeService;
 
-        /// <summary>The application insights configuration</summary>
-        private readonly IApplicationInsightsConfig applicationInsightsConfig;
+        /// <summary>The component for managing the main Application Insights configuration</summary>
+        private readonly Lazy<IApplicationInsightsConfig> applicationInsightsConfig;
 
-        /// <summary>The application insights java script</summary>
-        private readonly IApplicationInsightsJavaScript applicationInsightsJavaScript;
+        /// <summary>The component for managing Application Insights JavaScript</summary>
+        private readonly Lazy<IApplicationInsightsJavaScript> applicationInsightsJavaScript;
 
-        private readonly IFileMapper moduleFileMapper;
+        /// <summary>The module file mapper</summary>
+        private readonly Lazy<IFileMapper> moduleFileMapper;
 
         /// <summary>Initializes a new instance of the <see cref="ConfigureApplicationInsightsPresenter"/> class.</summary>
         /// <param name="view">The view.</param>
         public ConfigureApplicationInsightsPresenter(IConfigureApplicationInsightsView view)
             : base(view)
         {
-            this.moduleFileMapper = new ModuleFileMapper(this.ModuleInfo.DesktopModule);
-            this.xmlMergeService = new XmlMergeService(this.ModuleInfo.DesktopModule);
-            this.applicationInsightsConfig = new ApplicationInsightsConfig(this.ModuleInfo.DesktopModule);
-            this.applicationInsightsJavaScript = new ApplicationInsightsJavaScript(this.ModuleInfo.DesktopModule);
+            this.moduleFileMapper = new Lazy<IFileMapper>(() => new ModuleFileMapper(this.ModuleInfo.DesktopModule));
+            this.xmlMergeService = new Lazy<XmlMergeService>(() => new XmlMergeService(this.ModuleInfo.DesktopModule));
+            this.applicationInsightsConfig = new Lazy<IApplicationInsightsConfig>(() => new ApplicationInsightsConfig(this.ModuleInfo.DesktopModule));
+            this.applicationInsightsJavaScript = new Lazy<IApplicationInsightsJavaScript>(() => new ApplicationInsightsJavaScript(this.ModuleInfo.DesktopModule));
 
             this.View.Initialize += this.View_Initialize;
             this.View.UpdateConfiguration += this.View_UpdateConfiguration;
+        }
+
+        /// <summary>Gets the component for managing Application Insights JavaScript</summary>
+        private IApplicationInsightsJavaScript ApplicationInsightsJavaScript
+        {
+            get { return this.applicationInsightsJavaScript.Value; }
+        }
+
+        /// <summary>Gets the component for managing the main Application Insights configuration</summary>
+        private IApplicationInsightsConfig ApplicationInsightsConfig
+        {
+            get { return this.applicationInsightsConfig.Value; }
+        }
+
+        /// <summary>Gets the XML merge service</summary>
+        private XmlMergeService XmlMergeService
+        {
+            get { return this.xmlMergeService.Value; }
+        }
+
+        /// <summary>Gets the module file mapper</summary>
+        private IFileMapper ModuleFileMapper
+        {
+            get { return this.moduleFileMapper.Value; }
         }
 
         /// <summary>Handles the <see cref="IModuleViewBase.Initialize"/> event of the <see cref="Presenter{TView}.View"/>.</summary>
@@ -53,7 +78,7 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                this.View.Model.InstrumentationKey = this.applicationInsightsConfig.InstrumentationKey;
+                this.View.Model.InstrumentationKey = this.ApplicationInsightsConfig.InstrumentationKey;
             }
             catch (Exception exc)
             {
@@ -68,7 +93,7 @@ namespace Engage.Dnn.ApplicationInsights
         {
             try
             {
-                var isEnabled = !string.IsNullOrWhiteSpace(this.applicationInsightsConfig.InstrumentationKey);
+                var isEnabled = !string.IsNullOrWhiteSpace(this.ApplicationInsightsConfig.InstrumentationKey);
                 var willBeEnabled = !string.IsNullOrWhiteSpace(e.InstrumentationKey);
                 if (willBeEnabled)
                 {
@@ -86,7 +111,7 @@ namespace Engage.Dnn.ApplicationInsights
                     this.DisableApplicationInsights();
                 }
 
-                this.View.Model.InstrumentationKey = this.applicationInsightsConfig.InstrumentationKey;
+                this.View.Model.InstrumentationKey = this.ApplicationInsightsConfig.InstrumentationKey;
             }
             catch (Exception exc)
             {
@@ -96,25 +121,25 @@ namespace Engage.Dnn.ApplicationInsights
 
         private void UpdateInstrumentationKey(string instrumentationKey)
         {
-            this.applicationInsightsConfig.SetInstrumentationKey(instrumentationKey);
-            this.applicationInsightsJavaScript.SetInstrumentationKey(instrumentationKey);
+            this.ApplicationInsightsConfig.SetInstrumentationKey(instrumentationKey);
+            this.ApplicationInsightsJavaScript.SetInstrumentationKey(instrumentationKey);
         }
 
         /// <summary>Enables Application Insights integration for the site.</summary>
         /// <param name="instrumentationKey">The instrumentation key.</param>
         private void EnableApplicationInsights(string instrumentationKey)
         {
-            this.applicationInsightsJavaScript.EnableApplicationInsights(instrumentationKey);
-            this.applicationInsightsConfig.EnableApplicationInsights(instrumentationKey);
-            this.xmlMergeService.ApplyXmlMerge(this.moduleFileMapper.MapFilePath("EnableApplicationInsights.xml"));
+            this.ApplicationInsightsJavaScript.EnableApplicationInsights(instrumentationKey);
+            this.ApplicationInsightsConfig.EnableApplicationInsights(instrumentationKey);
+            this.XmlMergeService.ApplyXmlMerge(this.ModuleFileMapper.MapFilePath("EnableApplicationInsights.xml"));
         }
 
         /// <summary>Disables Application Insights integration for the site.</summary>
         private void DisableApplicationInsights()
         {
-            this.xmlMergeService.ApplyXmlMerge(this.moduleFileMapper.MapFilePath("DisableApplicationInsights.xml"));
-            this.applicationInsightsConfig.DisableApplicationInsights();
-            this.applicationInsightsJavaScript.DisableApplicationInsights();
+            this.XmlMergeService.ApplyXmlMerge(this.ModuleFileMapper.MapFilePath("DisableApplicationInsights.xml"));
+            this.ApplicationInsightsConfig.DisableApplicationInsights();
+            this.ApplicationInsightsJavaScript.DisableApplicationInsights();
         }
     }
 }
