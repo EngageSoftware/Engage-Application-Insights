@@ -35,10 +35,10 @@ namespace Engage.Dnn.ApplicationInsights
         }
 
         /// <summary>Gets the name of the component requesting the merge.</summary>
-        private string Sender { get; }
+        private string Sender { get; set; }
 
         /// <summary>Gets the version of the component requesting the merge.</summary>
-        private string Version { get; }
+        private string Version { get; set; }
 
         /// <summary>Applies the XML Merge instructions to the configuration files.</summary>
         /// <param name="sourceFileName">Path to the XML Merge configuration file.</param>

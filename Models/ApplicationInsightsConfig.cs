@@ -40,11 +40,20 @@ namespace Engage.Dnn.ApplicationInsights
         }
 
         /// <summary>Gets the configured instrumentation key.</summary>
-        public string InstrumentationKey => File.Exists(ApplicationInsightsConfigMapPath)
-                                                       ? XDocument.Load(ApplicationInsightsConfigMapPath).Element(Ns + "ApplicationInsights").Element(Ns + "InstrumentationKey").Value
-                                                       : null;
+        public string InstrumentationKey
+        {
+            get
+            {
+                if (!File.Exists(ApplicationInsightsConfigMapPath))
+                {
+                    return null;
+                }
 
-        private DesktopModuleInfo DesktopModule { get; }
+                return XDocument.Load(ApplicationInsightsConfigMapPath).Element(Ns + "ApplicationInsights").Element(Ns + "InstrumentationKey").Value;
+            }
+        }
+
+        private DesktopModuleInfo DesktopModule { get; set; }
 
         /// <summary>Enables Application Insights integration for the site.</summary>
         public void EnableApplicationInsights(string instrumentationKey)
