@@ -155,8 +155,15 @@
     <Compile Include="ApplicationInsightsAppender.cs" />
     <Compile Include="ApplicationInsightsModule.cs" />
     <Compile Include="FeaturesController.cs" />
+    <Compile Include="Models\ApplicationInsightsConfig.cs" />
+    <Compile Include="Models\ApplicationInsightsJavaScript.cs" />
+    <Compile Include="Models\IApplicationInsightsConfig.cs" />
+    <Compile Include="Models\IApplicationInsightsJavaScript.cs" />
+    <Compile Include="Models\IFileMapper.cs" />
+    <Compile Include="Models\ModuleFileMapper.cs" />
     <Compile Include="Models\ViewModels\ConfigureApplicationInsightsViewModel.cs" />
     <Compile Include="Models\XmlExtensions.cs" />
+    <Compile Include="Models\XmlMergeService.cs" />
     <Compile Include="Presenters\ConfigureApplicationInsightsPresenter.cs" />
     <Compile Include="Views\ConfigureApplicationInsights.ascx.designer.cs">
       <DependentUpon>ConfigureApplicationInsights.ascx</DependentUpon>
