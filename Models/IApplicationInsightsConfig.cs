@@ -17,6 +17,7 @@ namespace Engage.Dnn.ApplicationInsights
         string InstrumentationKey { get; }
 
         /// <summary>Enables Application Insights integration for the site.</summary>
+        /// <param name="instrumentationKey">The instrumentation key.</param>
         void EnableApplicationInsights(string instrumentationKey);
 
         /// <summary>Disables Application Insights integration for the site.</summary>

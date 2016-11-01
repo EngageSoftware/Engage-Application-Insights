@@ -1,4 +1,4 @@
-﻿// <copyright file="XmlMerge.cs" company="Engage Software">
+﻿// <copyright file="XmlMergeService.cs" company="Engage Software">
 // Engage: Application Insights
 // Copyright (c) 2004-2016
 // by Engage Software ( http://www.engagesoftware.com )
@@ -34,10 +34,10 @@ namespace Engage.Dnn.ApplicationInsights
             this.Sender = sender;
         }
 
-        /// <summary>Gets the name of the component requesting the merge.</summary>
+        /// <summary>Gets or sets the name of the component requesting the merge.</summary>
         private string Sender { get; set; }
 
-        /// <summary>Gets the version of the component requesting the merge.</summary>
+        /// <summary>Gets or sets the version of the component requesting the merge.</summary>
         private string Version { get; set; }
 
         /// <summary>Applies the XML Merge instructions to the configuration files.</summary>

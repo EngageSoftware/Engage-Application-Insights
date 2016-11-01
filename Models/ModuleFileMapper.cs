@@ -32,7 +32,7 @@ namespace Engage.Dnn.ApplicationInsights
             this.FolderName = folderName;
         }
 
-        /// <summary>Gets the name of the module's folder.</summary>
+        /// <summary>Gets or sets the name of the module's folder.</summary>
         private string FolderName { get; set; }
 
         /// <summary>Gets the absolute physical file path for the given <paramref name="relativeFilePath" />.</summary>

@@ -101,6 +101,7 @@ namespace Engage.Dnn.ApplicationInsights
         }
 
         /// <summary>Enables Application Insights integration for the site.</summary>
+        /// <param name="instrumentationKey">The instrumentation key.</param>
         private void EnableApplicationInsights(string instrumentationKey)
         {
             this.applicationInsightsJavaScript.EnableApplicationInsights(instrumentationKey);
