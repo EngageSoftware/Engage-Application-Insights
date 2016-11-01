@@ -58,7 +58,7 @@ namespace Engage.Dnn.ApplicationInsights
         /// <summary>Enables Application Insights integration for the site.</summary>
         public void EnableApplicationInsights(string instrumentationKey)
         {
-            File.Copy(ApplicationInsightsTemplateMapPath, ApplicationInsightsConfigMapPath, false);
+            File.Copy(ApplicationInsightsTemplateMapPath, ApplicationInsightsConfigMapPath, true);
             this.SetInstrumentationKey(instrumentationKey);
         }
 
