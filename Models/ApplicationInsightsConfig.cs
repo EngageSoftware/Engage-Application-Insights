@@ -56,6 +56,7 @@ namespace Engage.Dnn.ApplicationInsights
         private DesktopModuleInfo DesktopModule { get; set; }
 
         /// <summary>Enables Application Insights integration for the site.</summary>
+        /// <param name="instrumentationKey">The instrumentation key</param>
         public void EnableApplicationInsights(string instrumentationKey)
         {
             File.Copy(ApplicationInsightsTemplateMapPath, ApplicationInsightsConfigMapPath, true);
@@ -72,6 +73,7 @@ namespace Engage.Dnn.ApplicationInsights
         /// <param name="instrumentationKey">The new instrumentation key.</param>
         public void SetInstrumentationKey(string instrumentationKey)
         {
+#pragma warning disable SA1118 // Parameter must not span multiple lines
             var xmlMergeConfiguration = new XDocument(
                                             new XElement(
                                                 "configuration",
@@ -87,6 +89,7 @@ namespace Engage.Dnn.ApplicationInsights
                                                         new XAttribute("nameSpace", Ns.NamespaceName),
                                                         new XAttribute("nameSpacePrefix", "ns"),
                                                         new XElement("InstrumentationKey", instrumentationKey)))));
+#pragma warning restore SA1118 // Parameter must not span multiple lines
 
             new XmlMergeService(this.DesktopModule).ApplyXmlMerge(xmlMergeConfiguration);
         }

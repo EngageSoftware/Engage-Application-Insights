@@ -23,7 +23,7 @@ namespace Engage.Dnn.ApplicationInsights
     public partial class ConfigureApplicationInsights : ModuleView<ConfigureApplicationInsightsViewModel>, IConfigureApplicationInsightsView
     {
         /// <summary>Occurs when updating the configuration.</summary>
-        public event EventHandler<UpdatingConfigurationEventArgs> UpdateConfiguration = (_, __) => { };
+        public event EventHandler<UpdatingConfigurationEventArgs> UpdateConfiguration = (sender, args) => { };
 
         /// <summary>Handles the <see cref="Button.Click" /> event of the <see cref="SubmitButton"/> control.</summary>
         /// <param name="sender">The source of the event.</param>
